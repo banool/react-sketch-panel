@@ -11,13 +11,11 @@ import {
   ColorButtonS,
   SeparatorS,
   ToolbarHolderS,
-  PDFWrapperS,
   DrawPanelS,
   SelectS,
   OptionS,
 } from './Paintboard.styled';
 import { fabric } from 'fabric-all-modules';
-import { PdfReader } from '../PdfReader';
 import { saveAs } from 'file-saver';
 import { Board, modes } from './Board.Class.js';
 import { ColorPicker } from '../ColorPicker';
@@ -74,8 +72,6 @@ const Paintboard = ({
   onCanvasChange = (data, event, canvas) => {},
   onZoom = (data, event, canvas) => {},
   onImageUploaded = (data, event, canvas) => {},
-  onPDFUploaded = (data, event, canvas) => {},
-  onPDFUpdated = (data, event, canvas) => {},
   onPageChange = (data, event, canvas) => {},
   onOptionsChange = (data, event, canvas) => {},
   onSaveCanvasAsImage = (data, event, canvas) => {},
@@ -94,7 +90,6 @@ const Paintboard = ({
   const [fileReaderInfo, setFileReaderInfo] = useState({ ...initFileInfo, ...fileInfo });
   const canvasRef = useRef(null);
   const whiteboardRef = useRef(null);
-  const uploadPdfRef = useRef(null);
   const rangeInput = useRef(null);
 
   const enabledControls = useMemo(
@@ -424,11 +419,6 @@ const Paintboard = ({
       uploadImage(event);
       onImageUploaded(event.target.files[0], event, board.canvas);
       board.resetZoom();
-    } else if (event.target.files[0].type.includes('pdf')) {
-      saveCanvasState();
-      board.clearCanvas();
-      updateFileReaderInfo({ file: event.target.files[0], currentPageNumber: 1 });
-      onPDFUploaded(event.target.files[0], event, board.canvas);
     }
     event.target.value = '';
   }
@@ -460,7 +450,6 @@ const Paintboard = ({
   function updateFileReaderInfo(data) {
     const newFileData = { ...fileReaderInfo, ...data };
     setFileReaderInfo(newFileData);
-    onPDFUpdated(newFileData, null, board.canvas);
   }
 
   const handlePageChange = (page) => {
@@ -573,21 +562,6 @@ const Paintboard = ({
 
           <SeparatorS />
 
-          {!!enabledControls.FILES && (
-            <ToolbarItemS>
-              <input
-                ref={uploadPdfRef}
-                hidden
-                accept="image/*"
-                type="file"
-                onChange={onFileChange}
-              />
-              <ButtonS onClick={() => uploadPdfRef.current.click()}>
-                <img src={UploadIcon} alt="Delete" />
-              </ButtonS>
-            </ToolbarItemS>
-          )}
-
           {!!enabledControls.SAVE_AS_IMAGE && (
             <ToolbarItemS>
               <ButtonS onClick={handleSaveCanvasAsImage}>
@@ -649,13 +623,6 @@ const Paintboard = ({
       <DrawPanelS>
         <canvas ref={canvasRef} id="canvas" />
       </DrawPanelS>
-      <PDFWrapperS>
-        <PdfReader
-          fileReaderInfo={fileReaderInfo}
-          onPageChange={handlePageChange}
-          updateFileReaderInfo={updateFileReaderInfo}
-        />
-      </PDFWrapperS>
     </PaintPanelS>
     // </div>
   );

@@ -148,12 +148,6 @@ export const ToolbarHolderS = styled.div`
   padding: 0 55px;
 `;
 
-export const PDFWrapperS = styled.div`
-  position: absolute;
-  bottom: 0;
-  width: 100%;
-`;
-
 export const ColorButtonS = styled.button`
   display: flex;
   justify-content: center;
